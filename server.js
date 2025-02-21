@@ -6,7 +6,7 @@ require('dotenv').config();
 const bodyParser = require('body-parser'); 
 app.use(bodyParser.json()); // req.body
 const cors = require('cors');
-app.use(cors({ origin: 'http://myvoting-app1.netlify.app' }));
+app.use(cors({ origin: 'https://myvoting-app1.netlify.app' }));
 const PORT = process.env.PORT || 3000;
 
 // Import the router files
