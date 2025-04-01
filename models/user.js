@@ -7,24 +7,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    age: {
-        type: Number,
-        required: true
-    },
+   
     email: {
         type: String
-    },
-    mobile: {
-        type: String
-    },
-    address: {
-        type: String,
-        required: true
-    },
-    aadharCardNumber: {
-        type: Number,
-        required: true,
-        unqiue: true
     },
     password: {
         type: String,
@@ -35,10 +20,7 @@ const userSchema = new mongoose.Schema({
         enum: ['voter', 'admin'],
         default: 'voter'
     },
-    isVoted: {
-        type: Boolean,
-        default: false
-    }
+    
 });
 
 
