@@ -5,7 +5,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: '*', // Frontend URL
+        origin: '*', // Updated frontend URL
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
     }
 });
@@ -15,8 +15,7 @@ require('dotenv').config();
 const bodyParser = require('body-parser'); 
 app.use(bodyParser.json()); // req.body
 const cors = require('cors');
-// app.use(cors({ origin: 'https://myvoting-app1.netlify.app' }));
-app.use(cors({ origin: '*' }));
+app.use(cors({ origin: '*' })); // Updated frontend URL
 const PORT = process.env.PORT || 3000;
 
 // Import the router files

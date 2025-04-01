@@ -104,7 +104,7 @@ module.exports = (io) => {
                     age: candidate.age,
                     party: candidate.party,
                     voteCount: candidate.voteCount,
-                    voters: candidate.votes.map(vote => vote.user.toString())
+                    voters: candidate.votes.map(vote => vote.user.toString()) // Include voters list
                 }
             });
         } catch (err) {
