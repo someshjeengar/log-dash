@@ -10,7 +10,7 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json()); // req.body
 const cors = require('cors');
 
-app.use(cors()); // Allow all origins
+
 
 app.use(cors({ origin: "https://helpful-begonia-dd5ddb.netlify.app"})); // Updated frontend URL
 
