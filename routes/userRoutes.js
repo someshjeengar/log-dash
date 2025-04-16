@@ -68,7 +68,7 @@ router.post('/login', async (req, res) => {
             role: user.role, // Include role in the token payload
         };
         const token = generateToken(payload);
-
+        console.log(user);
         // Return token as response
         res.status(200).json({ user: user, token });
         console.log('Login success');
