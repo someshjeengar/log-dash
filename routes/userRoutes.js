@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const User = require('./../models/user');
 const {jwtAuthMiddleware, generateToken} = require('./../jwt');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+
+const otpStore = {}; // Temporary store for OTPs
 
 // POST route to add a person
 router.post('/signup', async (req, res) => {
@@ -44,23 +48,18 @@ router.post('/signup', async (req, res) => {
 // Login Route
 router.post('/login', async (req, res) => {
     try {
-        // Extract email and password from request body
-        const { email, password } = req.body;
+        // Extract email from request body
+        const { email } = req.body;
 
-        // Check if email or password is missing
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password are required' });
+        // Check if email is missing
+        if (!email) {
+            return res.status(400).json({ error: 'Email is required' });
         }
 
         // Check if the email exists
         const user = await User.findOne({ email: email });
         if (!user) {
             return res.status(400).json({ error: 'Email does not exist' });
-        }
-
-        // If password does not match, return error
-        if (!(await user.comparePassword(password))) {
-            return res.status(401).json({ error: 'Invalid email or password' });
         }
 
         // Generate token
@@ -71,7 +70,7 @@ router.post('/login', async (req, res) => {
         const token = generateToken(payload);
 
         // Return token as response
-        res.status(200).json({user:user, token });
+        res.status(200).json({ user: user, token });
         console.log('Login success');
     } catch (err) {
         console.error(err);
@@ -81,28 +80,74 @@ router.post('/login', async (req, res) => {
 
 // Profile route
 router.get('/profile', jwtAuthMiddleware, async (req, res) => {
-    try{
+    try {
         const userData = req.user;
         const userId = userData.id;
-        const user = await User.findById(userId);
-        console.log(user);
-        res.status(200).json({user});
-    }catch(err){
-        console.error(err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-})
-
-// Delete account route
-router.delete('/delete', jwtAuthMiddleware, async (req, res) => {
-    try {
-        const userId = req.user.id;
-        await User.findByIdAndDelete(userId);
-        console.log('User account deleted');
-        res.status(200).json({ message: 'Account deleted successfully' });
+        const user = await User.findById(userId, 'name email role'); // Fetch only username, email, and role
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.status(200).json({ user });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Route to send OTP
+router.post('/send-otp', async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ error: 'Email is required' });
+        }
+
+        const otp = crypto.randomInt(100000, 999999).toString(); // Generate 6-digit OTP
+        otpStore[email] = otp;
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL, // Your email
+                pass: process.env.EMAIL_PASSWORD, // Your email password
+            },
+        });
+
+        const mailOptions = {
+            from: process.env.EMAIL,
+            to: email,
+            subject: 'Your OTP for Login',
+            text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.status(200).json({ message: 'OTP sent successfully' });
+
+        // Clear OTP after 5 minutes
+        setTimeout(() => delete otpStore[email], 300000);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to send OTP' });
+    }
+});
+
+// Route to verify OTP
+router.post('/verify-otp', (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        if (!email || !otp) {
+            return res.status(400).json({ error: 'Email and OTP are required' });
+        }
+
+        if (otpStore[email] === otp) {
+            delete otpStore[email]; // Clear OTP after successful verification
+            res.status(200).json({ message: 'OTP verified successfully' });
+        } else {
+            res.status(400).json({ error: 'Invalid OTP' });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to verify OTP' });
     }
 });
 
