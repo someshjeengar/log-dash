@@ -9,7 +9,7 @@ require('dotenv').config();
 const bodyParser = require('body-parser'); 
 app.use(bodyParser.json()); // req.body
 const cors = require('cors');
-app.use(cors({ origin: '*' })); // Updated frontend URL
+app.use(cors({ origin: "https://helpful-begonia-dd5ddb.netlify.app"})); // Updated frontend URL
 
 const PORT = process.env.PORT || 3000;
 
