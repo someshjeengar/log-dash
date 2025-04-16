@@ -68,7 +68,7 @@ router.post('/login', async (req, res) => {
             role: user.role, // Include role in the token payload
         };
         const token = generateToken(payload);
-
+        console.log(user);
         // Return token as response
         res.status(200).json({ user: user, token });
         console.log('Login success');
@@ -121,6 +121,7 @@ router.post('/send-otp', async (req, res) => {
         };
 
         await transporter.sendMail(mailOptions);
+        console.log(`OTP sent to ${email}: ${otp}`);
         res.status(200).json({ message: 'OTP sent successfully' });
 
         // Clear OTP after 5 minutes

@@ -9,7 +9,7 @@ require('dotenv').config();
 const bodyParser = require('body-parser'); 
 app.use(bodyParser.json()); // req.body
 const cors = require('cors');
-app.use(cors({ origin: '*' })); // Updated frontend URL
+app.use(cors()); // Allow all origins
 
 const PORT = process.env.PORT || 3000;
 
