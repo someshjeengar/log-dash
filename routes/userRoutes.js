@@ -123,6 +123,7 @@ router.post('/send-otp', async (req, res) => {
         await transporter.sendMail(mailOptions);
         console.log(`OTP sent to ${email}: ${otp}`);
         res.status(200).json({ message: 'OTP sent successfully' });
+         console.log(`OTP sent to ${email}: ${otp}`);
 
         // Clear OTP after 5 minutes
         setTimeout(() => delete otpStore[email], 300000);
